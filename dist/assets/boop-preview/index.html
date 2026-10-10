@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boop — interactive browser preview</title>
+  <meta name="description" content="A scripted browser preview of Buddygotchi's Boop character. Tap or drag to interact. No live model or hardware connection.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://mellowmachines.com/assets/boop-preview/">
+  <style>
+    *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000}
+    #slime-jelly-base,.slime-stage{width:100%;height:100%}
+    .slime-stage{position:relative;overflow:hidden;touch-action:none}canvas{display:block;width:100%;height:100%}
+    .audition-controls,.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    .audition-controls{display:none}
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Boop browser preview","applicationCategory":"EntertainmentApplication","operatingSystem":"Web browser","description":"A scripted character preview without live inference."}</script>
+  <script src="source/catalog.js" defer></script><script src="source/speech-renderer.js" defer></script>
+  <script src="source/sfx.js" defer></script><script src="bridge.js" defer></script>
+</head>
+<body>
+  <h1 class="sr-only">Boop interactive preview</h1>
+  <div id="slime-jelly-base">
+    <div class="slime-stage"><canvas role="img" aria-label="Blue Boop character. Drag to stretch; tap to give a gentle poke."></canvas></div>
+    <div class="audition-controls" aria-hidden="true">
+      <span data-status></span><button type="button" data-poke>Poke</button><button type="button" data-shake>Shake</button>
+      <button type="button" data-pause aria-pressed="false">Pause</button>
+      <select data-expression aria-label="Expression"></select><select data-performance aria-label="Performance"></select>
+      <button type="button" data-perform>Replay gesture</button>
+    </div>
+  </div>
+</body>
+</html>

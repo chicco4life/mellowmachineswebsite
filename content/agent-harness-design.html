@@ -1,0 +1,62 @@
+<h2>A small decision loop, with two ways to react</h2>
+<p>An agent harness connects input, context, model decisions and application actions. <strong>MellowHarness</strong> applies that pattern to fast, expressive feedback: application rules can react immediately, while a System One Model such as Jev chooses among actions the application offers. Both paths leave a trace in the same event log.</p>
+<p>This is useful for AI hardware and applications where a reaction matters more than a paragraph: a companion acknowledges a tap, notices a coding agent needs attention, or changes its mood after a difficult task. The model contributes contextual judgment; application code defines the possible effects.</p>
+<figure><img src="/assets/responsive-harness.png" width="2880" height="1800" alt="Context assembly feeds a central agent loop. Agent-triggered and code-triggered outcomes both return to a shared event log." loading="lazy"><figcaption>The harness loop and its two feedback paths. Read the current contracts below; the diagram is an architectural overview.</figcaption></figure>
+
+<h2>What goes into an iteration?</h2>
+<p>The application supplies three ingredients:</p>
+<ul>
+<li><strong>Steering:</strong> authored instructions, character or personality, and guidance for reading events.</li>
+<li><strong>Action roster:</strong> eligible choices and descriptions of when each choice fits. The roster can change with the current log.</li>
+<li><strong>Recent history:</strong> relevant input, earlier decisions and already-executed effects, followed by the current event.</li>
+</ul>
+<p>The runtime assembles a plain-text prompt from steering and the selected history. Each output contributes a named choice question. Those questions travel together in a decision request; a returned key belongs to its corresponding output. The application validates that the selected value was actually offered before executing it.</p>
+<p>Context management is deliberately compact. The model does not receive an unlimited transcript or an unrestricted tool catalogue. Input adapters turn events into useful lines, and application logic determines which events deserve a decision pass. An unknown event can still be logged without waking the model.</p>
+<h2>Rules and decisions share the same history</h2>
+<p>The first path is <strong>code-driven feedback</strong>. A rule can acknowledge a tap or update a work indicator as soon as the event arrives. That effect is recorded before the model sees the event, so the prompt can explain what has already happened.</p>
+<p>The second path is <strong>model-guided choice</strong>. The runtime prepares the allowed choices, asks the brain and applies a valid answer. It records the decision and resulting effect. A late or failed pass can be dropped; an application does not have to wait indefinitely for expressive feedback.</p>
+<p>This split makes responsiveness an architectural property. Immediate acknowledgment need not wait for inference. The later decision can be context-sensitive without controlling every device operation. See the <a href="/learn/jev-decision-latency/">historical Jev timing sample</a> for the measurement boundary.</p>
+<h2>What the shared event log looks like</h2>
+<p>The harness appends JSONL records with a sequence number, a Unix-millisecond timestamp, a source and a kind. Optional <code>line</code> and <code>data</code> fields provide readable context and structured details. Its own <code>did</code>, <code>pass</code> and <code>ended</code> records describe effects, decisions and completed actions.</p>
+<p>This <strong>synthetic example</strong> illustrates the public record shape. Application-defined events and payloads are illustrative; it is not a captured user session.</p>
+<pre><code class="language-jsonl">{&quot;seq&quot;:41,&quot;at&quot;:1791590400000,&quot;source&quot;:&quot;agent&quot;,&quot;kind&quot;:&quot;tool_failed&quot;,&quot;line&quot;:&quot;A test failed.&quot;,&quot;data&quot;:{&quot;tool&quot;:&quot;test&quot;}}
+{&quot;seq&quot;:42,&quot;at&quot;:1791590400001,&quot;source&quot;:&quot;self&quot;,&quot;kind&quot;:&quot;did&quot;,&quot;data&quot;:{&quot;for&quot;:41,&quot;by&quot;:&quot;rule&quot;,&quot;action&quot;:&quot;show_working&quot;,&quot;message&quot;:&quot;The work indicator is active.&quot;,&quot;ok&quot;:true}}
+{&quot;seq&quot;:43,&quot;at&quot;:1791590400240,&quot;source&quot;:&quot;self&quot;,&quot;kind&quot;:&quot;pass&quot;,&quot;data&quot;:{&quot;for&quot;:41,&quot;brain&quot;:&quot;jev:jev-latest&quot;,&quot;answers&quot;:{&quot;mood&quot;:{&quot;choice&quot;:&quot;determined&quot;,&quot;p&quot;:{&quot;determined&quot;:1}}},&quot;dropped&quot;:null,&quot;ms&quot;:239}}
+{&quot;seq&quot;:44,&quot;at&quot;:1791590400241,&quot;source&quot;:&quot;self&quot;,&quot;kind&quot;:&quot;did&quot;,&quot;data&quot;:{&quot;for&quot;:41,&quot;by&quot;:&quot;brain&quot;,&quot;action&quot;:&quot;mood&quot;,&quot;from&quot;:&quot;calm&quot;,&quot;to&quot;:&quot;determined&quot;,&quot;message&quot;:&quot;The mood changed to determined.&quot;,&quot;ok&quot;:true}}
+</code></pre>
+<p><code>seq</code> identifies append order; <code>data.for</code> connects an effect or pass to the event it concerns. The log writer keeps timestamps nondecreasing. This does not establish a globally synchronized order across separate devices or distributed clocks.</p>
+<p>The log is the harness’s durable source of context and derived state. It is not a promise of permanent memory: retention and prompt history are bounded, and applications can have their own device or session state. Do not publish private prompts or conversations when sharing an example log.</p>
+<h2>From bounded decisions to character</h2>
+<p>Buddygotchi adds three layers to this general runtime:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Responsibility</th>
+<th>Current implementation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Personality</td>
+<td>A persistent character tendency and authored steering</td>
+<td>Authored personality is supplied to prompt assembly. Nightly auto-dream learning and learned long-term personality remain work in progress.</td>
+</tr>
+<tr>
+<td>Mood</td>
+<td>The character’s emotional direction</td>
+<td>Jev selects from eligible transitions in the character’s connected mood graph, with guidance for each transition.</td>
+</tr>
+<tr>
+<td>State</td>
+<td>What is happening now</td>
+<td>Coding-task and application events determine operational state, such as working or needing attention. The character renders the combination of mood and state.</td>
+</tr>
+</tbody></table>
+<p>These layers have different jobs. A working character can look determined, grumpy or cheerful. State is not simply generated from mood. The mood graph constrains what transitions are offered; the model chooses within that context rather than inventing arbitrary mood names.</p>
+<p>The current character system uses authored animations and cues. Jev selects a fitting response; it does not write unrestricted dialogue or generate a new animation on every pass. The bounded vocabulary still permits many context-dependent sequences of behavior.</p>
+<h2>Where the runtime and model run</h2>
+<p>MellowHarness currently provides <strong>JevBrain</strong> and <strong>ScriptedBrain</strong> behind a brain contract. Jev uses a hosted decision API. ScriptedBrain lets builders exercise the same runtime without a model key. Other providers require an adapter; a compatible interface is not proof of a tested integration.</p>
+<p>In the current Buddygotchi build, a Mac host runs the application and harness. An ESP32 display receives character actions and sends device events. The model is not running on the ESP32. The architecture can inform other hardware projects, but the current supported build is documented separately.</p>
+<h2>Try the architecture</h2>
+<p>Start with the <a href="/learn/mellowharness-quickstart/">scripted-loop quickstart</a>. Then read the <a href="/learn/system-one-models/">System One decision-model guide</a>, connect <a href="/learn/coding-agent-companion/">coding-agent events</a>, or follow the <a href="/learn/buddygotchi-build/">public Pixel/CYD build</a>.</p>
+<p>The <a href="/learn/mellowharness/">October 7 technical sharing</a> is preserved with its original Substack canonical. This guide is the maintained architectural explanation, based on the source revision linked below.</p>

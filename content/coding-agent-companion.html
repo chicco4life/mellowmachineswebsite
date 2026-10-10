@@ -1,0 +1,24 @@
+<h2>A coding agent can work quietly while its companion stays expressive</h2>
+<p>Buddygotchi turns coding-agent events into visible work, attention and character. It uses <strong>AgentHooks</strong> for Claude Code and Codex integration, <strong>MellowHarness</strong> for bounded reactions, and a character pack for mood, animation and sound.</p>
+<p>The aim is an expressive peripheral: you can see that an agent is working, needs your attention or has finished. A System One Model such as Jev adds context-sensitive mood choices; application rules keep the immediate status path responsive.</p>
+<figure><img src="/assets/buddygotchi-workday.gif" width="684" height="570" alt="A pixel coding companion works, signals for attention and celebrates." loading="lazy"><figcaption>A scripted firmware-simulator sequence using the public Pixel character pack.</figcaption></figure>
+
+<h2>From hooks to a shared event stream</h2>
+<p>Claude Code and Codex produce different lifecycle signals. AgentHooks normalizes the relevant session events into a stream an application can consume. Its current session vocabulary includes working, idle and needs-you states.</p>
+<p>Buddygotchi maps those events into its application state and emits useful context to the harness. The harness records what happened, what immediate feedback ran and what the model subsequently selected. A permission request can signal for attention without letting the companion approve a real coding-agent operation.</p>
+<p>The small integration layer is reusable beyond this character. Follow the <a href="https://github.com/Mellow-Machines-Lab/AgentHooks">AgentHooks repository</a> for the current setup and contracts rather than assuming every coding agent emits the same hooks.</p>
+<h2>Personality, mood and operational state</h2>
+<p><strong>Personality</strong> is authored steering: the character’s tendencies and response style. It enters prompt assembly. Nightly auto-dream, learned personality traversal and its long-term-memory persistence are <strong>work in progress</strong>, not a feature demonstrated by the browser play.</p>
+<p><strong>Mood</strong> is the emotional direction selected from the current graph’s allowed transitions. Jev receives guidance about when a transition fits; it cannot choose a mood omitted from the offered roster.</p>
+<p><strong>State</strong> describes the ongoing activity. Coding and device events determine it independently of mood. The face combines the two: working can look determined or irritated; waiting can look curious or tired. Authored cues and animations give those combinations an expressive vocabulary.</p>
+<p>This is more flexible than assigning one fixed animation to every trigger, while remaining bounded enough for an application to inspect and control. It does not require unrestricted generated speech for each interaction.</p>
+<h2>Browser demo versus public hardware build</h2>
+<p>The <a href="/#demo">landing-page demo</a> plays an authored four-minute task with tool calls, subagents, failures, taps and simulated user conversation. It uses existing animation and selected recorded voice assets in the current review preview. It makes <strong>no live Jev calls</strong>, uses no visitor microphone and does not measure device latency.</p>
+<p>The public build is a separate, documented route: a Mac host, supported ESP32 CYD display and the public Pixel pack. Pixel includes authored personality, moods, faces and sound effects; its public pack does <strong>not</strong> include the recorded-voice bank used in the review demo. Do not expect a board or microSD card alone to reproduce those voices.</p>
+<p>See the <a href="/learn/buddygotchi-build/">build walkthrough</a> and <a href="/learn/esp32-parts-list/">compatible parts</a> for current supported assets and hardware.</p>
+<h2>How this relates to Codex Pet and other coding buddies</h2>
+<p>Animated coding companions are an adjacent interaction pattern. OpenAI’s <a href="https://learn.chatgpt.com/docs/pets">Pets documentation</a> describes companions that reflect activity around the work experience.</p>
+<p>Buddygotchi is an independent open-source project. It is not an official Codex Pet, a Claude product or a verified integration with OpenAI’s Pets feature. The current connection to Claude Code and Codex comes through AgentHooks; the harness and character design belong to this project.</p>
+<h2>Start with the layer you need</h2>
+<p>For event integration, read AgentHooks. For the decision loop, start with <a href="/learn/agent-harness-design/">harness design</a> and the <a href="/learn/mellowharness-quickstart/">no-key quickstart</a>. For a character on your desk, follow the supported hardware build.</p>
+<p>Share a reproducible integration issue or a successful build through the relevant repository. Those examples help us improve the architecture and its documentation more than a claim that every companion interaction is already solved.</p>

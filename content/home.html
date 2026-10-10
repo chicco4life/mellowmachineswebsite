@@ -1,0 +1,60 @@
+<main id="main">
+<section class="container home-hero demo-hero" id="demo">
+  <div class="hero-copy">
+    <p class="eyebrow">Mellow Machines Lab</p>
+    <h1>Instant Response.<br>Infinite Character.</h1>
+    <p class="hero-intro">Mellow Harness is built around System One Models like Jev to empower AI hardware and applications with fast, expressive feedback.</p>
+    <div class="button-row"><a class="button primary" href="https://github.com/Mellow-Machines-Lab/MellowHarness">Explore the harness</a><a class="button" href="#design">How it works ↓</a></div>
+    <p class="hero-footnote">PS: It is <a href="https://github.com/Mellow-Machines-Lab/MellowHarness">100% open source.</a></p>
+  </div>
+  <div class="demo-wrap">
+    <h2 class="demo-title">Try Mellow Harness in Action.</h2>
+    <div class="buddy-demo" data-buddy-demo data-character="pixel" aria-label="Interactive harness demonstration">
+      <div class="demo-head"><span>Scripted · 4 min</span><label class="character-switch">Character <select data-character-switch aria-label="Demo character"><option value="pixel">Pixel buddy</option><option value="slime">Slime · WIP</option></select></label></div>
+      <div class="demo-scene">
+        <div class="demo-task">
+          <div class="event-stream-heading"><span class="task-dot"></span><span>events.jsonl</span></div>
+          <div class="scripted-speech" data-speech-input data-phase="hidden" hidden aria-label="Scripted user voice input">
+            <div class="speech-header"><span class="scripted-mic" role="img" aria-label="Simulated microphone press"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3m-4 0h8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="mic-hand" viewBox="0 0 24 28" width="20" height="24" aria-hidden="true"><path d="M8 14V4a2 2 0 0 1 4 0v8l2-1 2 2 2-1 3 4-1 8H9L3 17a2 2 0 0 1 3-2l2 2" fill="#dce8fb" stroke="#43556d" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span data-speech-status>You · speaking…</span><span class="speech-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
+            <p class="speech-transcript" data-speech-transcript></p>
+            <p class="speech-feedback" data-speech-feedback></p>
+          </div>
+          <pre class="event-stream" tabindex="0" aria-label="Simulated agent event stream"><code data-event-log></code></pre>
+          <button class="allow-button" data-allow hidden type="button">Grant permission →</button>
+        </div>
+        <div class="demo-character-stage">
+          <p class="voice-bubble" data-voice-bubble hidden></p>
+          <iframe src="/assets/pixel-buddy/" title="Buddygotchi pixel buddy: click to poke" sandbox="allow-scripts allow-same-origin" allow="autoplay" loading="eager"></iframe>
+          <p class="demo-loading" data-loading>Waking the buddy up…</p>
+          <div class="character-caption"><span><small>State</small><b data-state>Starting</b></span><span><small>Mood</small><b data-mood>Calm</b></span></div>
+        </div>
+      </div>
+      <div class="demo-controls"><button data-play type="button">Play</button><label class="sr-only" for="demo-position">Position in the four-minute demo</label><input id="demo-position" data-position type="range" min="0" max="240" value="0" aria-valuetext="0:00 of 4 minutes"><span class="demo-time" data-time>0:00 / 4:00</span><button class="sound-toggle" data-sound type="button" aria-label="Enable sound" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3zM17 9l5 6m0-6l-5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="demo-bottom"><p data-interaction>A coding day, with a little company.</p></div>
+    </div>
+    <p class="demo-disclosure">Scripted tasks, taps and conversations. User speech is shown as text. Enable sound for Boop’s recorded voice. No live model calls; timing is illustrative.</p>
+    <noscript><p class="demo-nojs">Enable JavaScript to play the task, or <a href="/buddygotchi/">watch the companion demos</a>.</p></noscript>
+  </div>
+</section>
+<section class="design-band" id="design"><div class="container design-section">
+  <div class="section-heading"><p class="eyebrow">The harness behind the character</p><h2>Quick feedback. Room for a little judgment.</h2><p>Immediate reactions come from code. A System One Model chooses what fits the moment. One shared event log keeps both paths in context.</p></div>
+  <div class="design-layout"><figure class="harness-figure"><a href="/learn/agent-harness-design/" aria-label="Read the MellowHarness technical overview"><img src="/assets/responsive-harness.png" width="2880" height="1800" alt="MellowHarness: context assembly feeds the central agent loop; agent and code-triggered events share an execution log." loading="lazy"></a><figcaption>The loop, its inputs and the two event paths. <a href="/learn/agent-harness-design/">Read the harness design →</a></figcaption></figure><div class="design-principles">
+    <article><span class="principle-number">01</span><h3>Rules react immediately.</h3><p>Taps, task changes and attention signals can trigger feedback as soon as the event arrives.</p></article>
+    <article><span class="principle-number">02</span><h3>The model chooses.</h3><p>Personality, recent events and an allowed action roster guide Jev’s next decision.</p></article>
+    <article><span class="principle-number">03</span><h3>Both paths leave a trace.</h3><p>Code and model outcomes append to the same log, which feeds the next iteration.</p></article>
+  </div></div>
+  <div class="character-layers"><div><span class="resource-kind">In the Buddygotchi example</span><h3>Character at three timescales.</h3></div><div><h4>Personality</h4><p>Authored character in the prompt. Nightly learning is work in progress.</p></div><div><h4>Mood</h4><p>The model moves through related moods, with context for each transition.</p></div><div><h4>State</h4><p>The current task becomes visible: working, waiting, or finished.</p></div></div>
+</div></section>
+<section class="container projects-section" id="projects"><div class="section-heading"><p class="eyebrow">Build with the Lab</p><h2>Start with the piece you need.</h2></div><div class="project-list">
+  <article class="project"><div class="project-type">01 / Agent harness</div><div class="project-copy"><h3>MellowHarness</h3><p>The loop, bounded model choices and shared event log for responsive agents. Bring your own character, actions and outputs.</p><div class="project-links"><a href="https://github.com/Mellow-Machines-Lab/MellowHarness">Repository</a><a href="/learn/mellowharness-quickstart/">Try the scripted loop</a></div></div><div class="project-note"><b>Start without a model key.</b><p>A scripted brain exercises the same runtime.</p></div></article>
+  <article class="project"><div class="project-type">02 / Companion example</div><div class="project-copy"><h3>Buddygotchi</h3><p>A little companion that follows your coding agents. Animations, sounds and connected moods make the coding day feel a little more alive.</p><div class="project-links"><a href="https://github.com/Mellow-Machines-Lab/buddygotchi">Repository</a><a href="/buddygotchi/">Meet the companion</a></div></div><div class="project-note"><b>Bring it to your desk.</b><p>The current device build uses a Mac host and an ESP32 display.</p></div></article>
+  <article class="project"><div class="project-type">03 / Agent integration</div><div class="project-copy"><h3>AgentHooks</h3><p>Claude Code and Codex hooks, normalized into one event stream. Give your application work and attention signals from coding agents.</p><div class="project-links"><a href="https://github.com/Mellow-Machines-Lab/AgentHooks">Repository</a><a href="https://github.com/Mellow-Machines-Lab/AgentHooks/blob/main/ARCHITECTURE.md">Event contracts</a></div></div><div class="project-note"><b>Use it beyond the companion.</b><p>A small integration layer for applications that follow coding agents.</p></div></article>
+</div><p class="project-profile">Lab profile and community files: <a href="https://github.com/Mellow-Machines-Lab/.github">.github repository</a>.</p></section>
+<section class="resource-band" id="resources"><div class="container resource-section">
+  <div class="section-heading"><p class="eyebrow">Technical sharings & build guides</p><h2>From the loop to a face on your desk.</h2><p>Start with harness design and decision models, connect a coding companion, then follow the animation and ESP32 build. Hardware is one way to bring the idea to life.</p></div>
+  <div class="home-build-feature"><div><span class="resource-kind">The public hardware build</span><h3>Build your own Buddygotchi.</h3><p>Agent events → mood choices → pixel animation → ESP32 display. Our walkthrough covers the current public Pixel pack and supported CYD board.</p><div class="project-links"><a href="/learn/buddygotchi-build/">Read the build guide →</a><a href="/learn/esp32-parts-list/">Check the parts list</a><a href="/learn/esp32-ai-agent/">Host/device architecture</a></div></div><figure><img src="/assets/buddygotchi-workday.gif" width="684" height="570" alt="The public pixel companion works, asks for attention and celebrates in a scripted simulator sequence." loading="lazy"><figcaption>Public Pixel pack · scripted firmware-simulator demo.</figcaption></figure></div>
+  <div class="home-resources"></div><a class="library-link" href="/learn/">Browse all technical sharings and resources →</a>
+</div></section>
+<section class="container about-section" id="about"><div><p class="eyebrow">Why Mellow Machines?</p><h2>Make room for something warm.</h2></div><div class="about-copy"><p>Mellow Machines Lab is a small open-source team applying frontier harness principles to build warm, welcoming, playful companions.</p><p>We feel the noise and anxiety around AI too. This is our after-work space to make something fun and heartwarming—and share the tools that help other builders do the same.</p><div class="project-links"><a href="https://github.com/Mellow-Machines-Lab/MellowHarness/blob/main/CONTRIBUTING.md">Build with us</a><a href="https://mellowmachines.substack.com">Follow Lab updates</a></div></div></section>
+</main>
+<script type="module" src="/assets/landing-demo.mjs"></script>

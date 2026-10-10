@@ -1,0 +1,367 @@
+[
+  {
+    "id": "agent-design",
+    "path": "/learn/agent-harness-design/",
+    "body": "content/agent-harness-design.html",
+    "title": "Agent harness design for fast, expressive feedback",
+    "description": "How MellowHarness combines a System One decision loop, bounded action choices, immediate rules and a shared JSONL event log for AI hardware and applications.",
+    "lead": "The loop, its context and two feedback paths. A maintained guide to the architecture behind MellowHarness.",
+    "category": "Architecture guide",
+    "source": "MellowHarness",
+    "sourceFile": "ARCHITECTURE.md",
+    "image": "/assets/responsive-harness.png",
+    "sources": [
+      {
+        "repo": "buddygotchi",
+        "file": "characters/CHARACTER.md",
+        "label": "Character pack contract"
+      }
+    ],
+    "related": [
+      "quickstart",
+      "models",
+      "latency",
+      "companion"
+    ],
+    "added": "2026-10-10",
+    "updated": "2026-10-10",
+    "sourceChecked": "2026-10-10",
+    "autoToc": true,
+    "toc": [],
+    "markdown": "content/agent-harness-design.md"
+  },
+  {
+    "id": "models",
+    "path": "/learn/system-one-models/",
+    "body": "content/system-one-models.html",
+    "title": "System One Models: Jev and typed decision interfaces",
+    "description": "A source-backed guide to Jev, OpenAI Decisions API and the open-source Laya project. Typed action choices, integration status and evaluation boundaries.",
+    "lead": "Choose an action, score an input or make a bounded judgment. Where decision models fit in a responsive agent harness.",
+    "category": "Decision model guide",
+    "source": "MellowHarness",
+    "sourceFile": "Sources/MellowHarness/JevBrain.swift",
+    "externalSources": [
+      {
+        "label": "Typesafe API",
+        "url": "https://docs.typesafe.ai/api"
+      },
+      {
+        "label": "Jev introduction",
+        "url": "https://typesafe.ai/blog/introducing-system-one-models-and-jev"
+      },
+      {
+        "label": "OpenAI Decisions API",
+        "url": "https://developers.openai.com/api/docs/guides/decisions"
+      },
+      {
+        "label": "Laya project",
+        "url": "https://github.com/NandhaKishorM/laya"
+      }
+    ],
+    "related": [
+      "agent-design",
+      "quickstart",
+      "latency"
+    ],
+    "added": "2026-10-10",
+    "updated": "2026-10-10",
+    "sourceChecked": "2026-10-10",
+    "autoToc": true,
+    "toc": [],
+    "markdown": "content/system-one-models.md"
+  },
+  {
+    "id": "companion",
+    "path": "/learn/coding-agent-companion/",
+    "body": "content/coding-agent-companion.html",
+    "title": "Build an expressive companion for Claude Code and Codex",
+    "description": "Connect coding-agent hooks to Buddygotchi\u2019s state, mood and character. MellowHarness architecture, public build requirements and scripted-demo boundaries.",
+    "lead": "Coding-agent events become work, attention and character, through a small integration layer and bounded model choices.",
+    "category": "Companion architecture",
+    "source": "buddygotchi",
+    "sourceFile": "characters/CHARACTER.md",
+    "image": "/assets/buddygotchi-workday.gif",
+    "sources": [
+      {
+        "repo": "AgentHooks",
+        "file": "README.md",
+        "label": "AgentHooks setup"
+      }
+    ],
+    "externalSources": [
+      {
+        "label": "OpenAI Pets reference",
+        "url": "https://learn.chatgpt.com/docs/pets"
+      }
+    ],
+    "related": [
+      "agent-design",
+      "build-guide",
+      "parts"
+    ],
+    "added": "2026-10-10",
+    "updated": "2026-10-10",
+    "sourceChecked": "2026-10-10",
+    "autoToc": true,
+    "toc": [],
+    "markdown": "content/coding-agent-companion.md"
+  },
+  {
+    "id": "latency",
+    "path": "/learn/jev-decision-latency/",
+    "body": "content/jev-decision-latency.html",
+    "title": "Jev decision-pass latency: a 105-pass application log",
+    "description": "An audited historical Jev sample: 227 ms median across 105 decision passes. Full distribution, sanitized data and limits of the measurement.",
+    "lead": "A full distribution and an explicit measurement boundary, from our September 28 prototype log.",
+    "category": "Measured application sample",
+    "source": "MellowHarness",
+    "sourceFile": "ARCHITECTURE.md",
+    "image": "/assets/jev-latency-distribution.png",
+    "related": [
+      "agent-design",
+      "models",
+      "companion"
+    ],
+    "added": "2026-10-10",
+    "updated": "2026-10-10",
+    "sourceChecked": "2026-10-10",
+    "autoToc": true,
+    "toc": [],
+    "markdown": "content/jev-decision-latency.md"
+  },
+  {
+    "id": "quickstart",
+    "path": "/learn/mellowharness-quickstart/",
+    "body": "content/quickstart.html",
+    "title": "Try MellowHarness without a model API key",
+    "description": "Run a scripted agent loop on your Mac: send build events, apply immediate rules and inspect the shared log. No model key or ESP32 hardware required.",
+    "lead": "Start with a scripted brain. See the feedback path before you connect a model or a device.",
+    "category": "Quickstart",
+    "source": "MellowHarness",
+    "sourceFile": "README.md",
+    "toc": [
+      [
+        "requirements",
+        "Before you start"
+      ],
+      [
+        "build",
+        "Build the harness"
+      ],
+      [
+        "listen",
+        "Start the example"
+      ],
+      [
+        "events",
+        "Send events"
+      ],
+      [
+        "inspect",
+        "Inspect the prompt"
+      ],
+      [
+        "adapt",
+        "Adapt the loop"
+      ]
+    ],
+    "related": [
+      "agent-design",
+      "models",
+      "build-guide"
+    ],
+    "added": "2026-10-09",
+    "updated": "2026-10-10",
+    "sourceChecked": "2026-10-09"
+  },
+  {
+    "id": "esp32",
+    "path": "/learn/esp32-ai-agent/",
+    "body": "content/esp32-guide.html",
+    "title": "Build an ESP32 AI companion with a host-side agent harness",
+    "description": "Connect an ESP32 display to a Mac host with Buddygotchi and MellowHarness. Hardware requirements, host setup and the boundary between feedback and model choices.",
+    "lead": "A practical starting point for responsive hardware: a supported display board, a host-side loop and application-defined reactions.",
+    "category": "Architecture guide",
+    "source": "buddygotchi",
+    "sourceFile": "README.md",
+    "toc": [
+      [
+        "architecture",
+        "Where intelligence runs"
+      ],
+      [
+        "hardware",
+        "Supported boards"
+      ],
+      [
+        "setup",
+        "Build the companion"
+      ],
+      [
+        "behavior",
+        "Check behavior"
+      ],
+      [
+        "customize",
+        "Make it your own"
+      ],
+      [
+        "troubleshooting",
+        "Troubleshooting"
+      ]
+    ],
+    "related": [
+      "build-guide",
+      "parts"
+    ],
+    "added": "2026-10-09",
+    "updated": "2026-10-09",
+    "sourceChecked": "2026-10-09"
+  },
+  {
+    "id": "overview",
+    "path": "/learn/mellowharness/",
+    "body": "content/technical-overview.html",
+    "title": "MellowHarness for responsive AI hardware and applications",
+    "description": "An agent runtime, two event paths and a shared log. The original technical sharing explains MellowHarness and Buddygotchi\u2019s personality, mood and state layers.",
+    "lead": "A System One Model, a bounded action space and a shared event log. Applied to a little coding companion.",
+    "category": "Technical sharing",
+    "published": "2026-10-07",
+    "canonical": "https://mellowmachines.substack.com/p/mellowharness-for-responsive-ai-hardware",
+    "source": "MellowHarness",
+    "sourceFile": "ARCHITECTURE.md",
+    "toc": [],
+    "related": [
+      "agent-design",
+      "latency",
+      "build-guide"
+    ],
+    "added": "2026-10-07",
+    "updated": "2026-10-07",
+    "sourceChecked": "2026-10-09"
+  },
+  {
+    "id": "build-guide",
+    "path": "/learn/buddygotchi-build/",
+    "body": "content/buddygotchi-build.html",
+    "title": "Build Buddygotchi: from harness to animation to hardware",
+    "description": "A source-backed ESP32 companion tutorial: MellowHarness, Jev mood choices, the public Pixel animation pack, CYD parts, firmware and the Mac host.",
+    "lead": "Follow one build from coding-agent events to an expressive pixel face on your desk.",
+    "category": "Build guide",
+    "source": "buddygotchi",
+    "sourceFile": "characters/CHARACTER.md",
+    "image": "/assets/buddygotchi-workday.gif",
+    "toc": [
+      [
+        "route",
+        "The build path"
+      ],
+      [
+        "parts",
+        "Before you start"
+      ],
+      [
+        "harness",
+        "1. Harness"
+      ],
+      [
+        "animation",
+        "2. Animation"
+      ],
+      [
+        "hardware",
+        "3. Hardware"
+      ],
+      [
+        "verify",
+        "4. First checks"
+      ],
+      [
+        "adapt",
+        "Adapt the project"
+      ]
+    ],
+    "sources": [
+      {
+        "repo": "buddygotchi",
+        "file": "README.md",
+        "label": "Host setup"
+      },
+      {
+        "repo": "buddygotchi",
+        "file": "firmware/README.md",
+        "label": "Firmware & hardware"
+      },
+      {
+        "repo": "buddygotchi",
+        "file": "characters/pixel/character.json",
+        "label": "Public Pixel mood graph"
+      },
+      {
+        "repo": "buddygotchi",
+        "file": "linkkit/README.md",
+        "label": "Device transport"
+      }
+    ],
+    "related": [
+      "parts",
+      "overview",
+      "quickstart"
+    ],
+    "added": "2026-10-09",
+    "updated": "2026-10-09",
+    "sourceChecked": "2026-10-09"
+  },
+  {
+    "id": "parts",
+    "path": "/learn/esp32-parts-list/",
+    "body": "content/esp32-parts.html",
+    "title": "ESP32 parts list for a Buddygotchi build",
+    "description": "The exact CYD board, USB cable, Mac requirements and optional speaker or storage for the public Pixel companion. Includes an AMOLED board comparison and source links.",
+    "lead": "What to buy, what is already on the board, and what you can leave for later.",
+    "category": "Hardware reference",
+    "source": "buddygotchi",
+    "sourceFile": "firmware/README.md",
+    "toc": [
+      [
+        "essentials",
+        "Essential parts"
+      ],
+      [
+        "boards",
+        "Board comparison"
+      ],
+      [
+        "optional",
+        "Optional additions"
+      ],
+      [
+        "check",
+        "Before ordering"
+      ],
+      [
+        "build",
+        "Start the build"
+      ]
+    ],
+    "sources": [
+      {
+        "repo": "buddygotchi",
+        "file": "characters/CHARACTER.md",
+        "label": "Character compatibility"
+      },
+      {
+        "repo": "buddygotchi",
+        "file": "firmware/platformio.ini",
+        "label": "Board build targets"
+      }
+    ],
+    "related": [
+      "build-guide",
+      "esp32"
+    ],
+    "added": "2026-10-09",
+    "updated": "2026-10-09",
+    "sourceChecked": "2026-10-09"
+  }
+]

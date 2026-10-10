@@ -1,0 +1,161 @@
+[
+  {
+    "id": "agent-design",
+    "group": "Technical sharings",
+    "format": "Architecture guide",
+    "title": "Agent harness design for fast, expressive feedback",
+    "summary": "How MellowHarness combines a System One decision loop, bounded action choices, immediate rules and a shared JSONL event log for AI hardware and applications.",
+    "url": "/learn/agent-harness-design/",
+    "date": "2026-10-10",
+    "image": "/assets/responsive-harness.png"
+  },
+  {
+    "id": "models",
+    "group": "Technical sharings",
+    "format": "Decision model guide",
+    "title": "System One Models: Jev and typed decision interfaces",
+    "summary": "A source-backed guide to Jev, OpenAI Decisions API and the open-source Laya project. Typed action choices, integration status and evaluation boundaries.",
+    "url": "/learn/system-one-models/",
+    "date": "2026-10-10"
+  },
+  {
+    "id": "companion",
+    "group": "Technical sharings",
+    "format": "Companion architecture",
+    "title": "Build an expressive companion for Claude Code and Codex",
+    "summary": "Connect coding-agent hooks to Buddygotchi\u2019s state, mood and character. MellowHarness architecture, public build requirements and scripted-demo boundaries.",
+    "url": "/learn/coding-agent-companion/",
+    "date": "2026-10-10",
+    "image": "/assets/buddygotchi-workday.gif"
+  },
+  {
+    "id": "latency",
+    "group": "Technical sharings",
+    "format": "Measured application sample",
+    "title": "Jev decision-pass latency: a 105-pass application log",
+    "summary": "An audited historical Jev sample: 227 ms median across 105 decision passes. Full distribution, sanitized data and limits of the measurement.",
+    "url": "/learn/jev-decision-latency/",
+    "date": "2026-10-10",
+    "image": "/assets/jev-latency-distribution.png"
+  },
+  {
+    "id": "harness",
+    "group": "Open-source projects",
+    "format": "Open-source runtime",
+    "title": "MellowHarness",
+    "summary": "Immediate application rules, bounded model choices and one shared event log. Start with the scripted brain, then connect Jev or another brain.",
+    "url": "https://github.com/Mellow-Machines-Lab/MellowHarness"
+  },
+  {
+    "id": "buddy",
+    "group": "Open-source projects",
+    "format": "ESP32 worked application",
+    "title": "Buddygotchi",
+    "summary": "A Mac host and ESP32 display turn coding-agent events into work, attention and expressive reactions. The repository currently calls the companion Boop.",
+    "url": "https://github.com/Mellow-Machines-Lab/buddygotchi"
+  },
+  {
+    "id": "quickstart",
+    "group": "Build guides",
+    "format": "Quickstart \u00b7 No model key or hardware",
+    "title": "Try MellowHarness without a model API key",
+    "summary": "Run Beacon, send events and inspect how rules and model choices meet in the log.",
+    "url": "/learn/mellowharness-quickstart/",
+    "date": "2026-10-09"
+  },
+  {
+    "id": "build-guide",
+    "group": "Build guides",
+    "format": "Build guide \u00b7 Harness \u2192 Animation \u2192 Hardware",
+    "title": "Build Buddygotchi: from harness to animation to hardware",
+    "summary": "Follow the public Pixel build: coding-agent events, connected moods, animation packs, a CYD display and the first device checks.",
+    "url": "/learn/buddygotchi-build/",
+    "date": "2026-10-09",
+    "image": "/assets/buddygotchi-workday.gif"
+  },
+  {
+    "id": "parts",
+    "group": "Hardware & parts",
+    "format": "Parts list \u00b7 CYD + optional audio",
+    "title": "ESP32 parts list for a Buddygotchi build",
+    "summary": "The exact supported board, USB data cable, host requirements and optional speaker or storage. Includes a board comparison.",
+    "url": "/learn/esp32-parts-list/",
+    "date": "2026-10-09"
+  },
+  {
+    "id": "esp32",
+    "group": "Build guides",
+    "format": "Build guide \u00b7 Mac host + ESP32",
+    "title": "Build an ESP32 AI companion with a host-side agent harness",
+    "summary": "Understand the architecture, choose a supported display board and follow the Buddygotchi setup.",
+    "url": "/learn/esp32-ai-agent/",
+    "date": "2026-10-09"
+  },
+  {
+    "id": "overview",
+    "group": "Technical sharings",
+    "format": "Technical sharing \u00b7 Architecture",
+    "title": "MellowHarness for responsive AI hardware and applications",
+    "summary": "The decision loop, two event paths and the personality, mood and operational-state layers in Buddygotchi.",
+    "url": "/learn/mellowharness/",
+    "date": "2026-10-07",
+    "originalURL": "https://mellowmachines.substack.com/p/mellowharness-for-responsive-ai-hardware",
+    "image": "/assets/responsive-harness.png"
+  },
+  {
+    "id": "beacon",
+    "group": "Design & reference",
+    "format": "Runnable example \u00b7 Source",
+    "title": "Beacon: events, rules and a scripted brain",
+    "summary": "A compact application example to read alongside the quickstart. Adapt its inputs and outputs to your own project.",
+    "url": "https://github.com/Mellow-Machines-Lab/MellowHarness/tree/main/Examples/Beacon"
+  },
+  {
+    "id": "firmware",
+    "group": "Hardware & parts",
+    "format": "Hardware reference \u00b7 Source",
+    "title": "ESP32 displays, firmware and board bring-up",
+    "summary": "Exact board models, pin assignments, build targets and troubleshooting for the supported Buddygotchi displays.",
+    "url": "https://github.com/Mellow-Machines-Lab/buddygotchi/blob/main/firmware/README.md"
+  },
+  {
+    "id": "architecture",
+    "group": "Design & reference",
+    "format": "Runtime reference \u00b7 Source",
+    "title": "MellowHarness architecture and contracts",
+    "summary": "The event log, prompt assembly, inputs, rules, outputs and contract for your own brain adapter.",
+    "url": "https://github.com/Mellow-Machines-Lab/MellowHarness/blob/main/ARCHITECTURE.md"
+  },
+  {
+    "id": "hooks",
+    "group": "Open-source projects",
+    "format": "Coding-agent integration",
+    "title": "AgentHooks",
+    "summary": "One event stream for Claude Code and Codex hooks. Track working, idle and needs-you sessions in your own application.",
+    "url": "https://github.com/Mellow-Machines-Lab/AgentHooks"
+  },
+  {
+    "id": "community",
+    "group": "Open-source projects",
+    "format": "Community profile & shared files",
+    "title": "Mellow Machines Lab \u00b7 .github",
+    "summary": "The Lab\u2019s public organization profile and shared community files.",
+    "url": "https://github.com/Mellow-Machines-Lab/.github"
+  },
+  {
+    "id": "character",
+    "group": "Design & reference",
+    "format": "Character design \u00b7 Pack contract",
+    "title": "Character packs: personality, moods, faces and sound",
+    "summary": "How authored steering, a connected mood graph and state-based faces form a character. The public Pixel pack is the starting example.",
+    "url": "https://github.com/Mellow-Machines-Lab/buddygotchi/blob/main/characters/CHARACTER.md"
+  },
+  {
+    "id": "linkkit",
+    "group": "Design & reference",
+    "format": "Hardware integration \u00b7 Inside Buddygotchi",
+    "title": "LinkKit: host \u2194 device over Bluetooth or USB",
+    "summary": "The state, action and event messages between the host and the gadget. LinkKit currently lives inside the Buddygotchi repository.",
+    "url": "https://github.com/Mellow-Machines-Lab/buddygotchi/tree/main/linkkit"
+  }
+]

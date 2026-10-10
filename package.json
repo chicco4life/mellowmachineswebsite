@@ -1,0 +1,12 @@
+{
+  "name": "mellow-machines-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=24"},
+  "scripts": {
+    "build": "node scripts/render-guides.mjs && node scripts/build.mjs",
+    "check": "python3 scripts/check-site.py && python3 scripts/check-seo.py && node scripts/check-demo.mjs"
+  },
+  "devDependencies": {"marked": "17.0.5"}
+}

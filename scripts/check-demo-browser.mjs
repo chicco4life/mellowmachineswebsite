@@ -1,0 +1,133 @@
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {mkdtemp,readFile,writeFile,rm,mkdir} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+
+const profile=await mkdtemp(join(tmpdir(),'mml-headless-'));
+const browser=spawn('/usr/bin/arch',['-arm64','/Applications/Google Chrome.app/Contents/MacOS/Google Chrome','--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:['ignore','ignore','pipe']});
+let startupErrors='';browser.stderr.on('data',data=>{startupErrors=(startupErrors+data.toString()).slice(-3000);});
+let socket;
+try{
+ let portFile;
+ for(let n=0;n<450;n++){try{portFile=await readFile(join(profile,'DevToolsActivePort'),'utf8');break;}catch{if(browser.exitCode!==null)break;await new Promise(r=>setTimeout(r,100));}}
+ assert(portFile,'Headless browser did not start: '+startupErrors);
+ const [port,path]=portFile.trim().split('\n');
+ socket=new WebSocket('ws://127.0.0.1:'+port+path);
+ await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',reject,{once:true});});
+ let nextId=0;const pending=new Map();
+ socket.addEventListener('message',event=>{const message=JSON.parse(event.data);if(message.id&&pending.has(message.id)){const {resolve,reject}=pending.get(message.id);pending.delete(message.id);message.error?reject(new Error(message.error.message)):resolve(message.result);}});
+ function call(method,params={},sessionId){const id=++nextId;return new Promise((resolve,reject)=>{pending.set(id,{resolve,reject});socket.send(JSON.stringify({id,method,params,...sessionId?{sessionId}:{}}));});}
+ const {targetId}=await call('Target.createTarget',{url:'about:blank'}),{sessionId}=await call('Target.attachToTarget',{targetId,flatten:true});
+ const command=(method,params)=>call(method,params,sessionId);
+ await command('Page.enable');await command('Page.bringToFront');await mkdir('outputs',{recursive:true});const results=[];
+ const evaluate=async expression=>{
+  const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});
+  assert(!r.exceptionDetails,JSON.stringify(r.exceptionDetails)); return r.result.value;
+ };
+ const delay=ms=>new Promise(r=>setTimeout(r,ms));
+ const ready=async()=>{for(let i=0;i<80;i++){if(await evaluate("document.querySelector('[data-buddy-demo]')?.dataset.ready==='true'"))return;await delay(150);}assert.fail('Demo did not become ready.');};
+ const state=()=>evaluate("(()=>{const r=document.querySelector('[data-buddy-demo]'),w=r.querySelector('iframe').contentWindow;return {ready:r.dataset.ready,character:r.dataset.character,position:Number(r.querySelector('[data-position]').value),mood:r.querySelector('[data-mood]').textContent,state:r.querySelector('[data-state]').textContent,play:r.querySelector('[data-play]').textContent,allowVisible:!r.querySelector('[data-allow]').hidden,renderer:(w.pixelPreview||w.slimePreview)?.getState(),events:r.querySelector('[data-event-log]').textContent.trim().split('\\n').filter(Boolean).map(JSON.parse)};})()");
+ const seek=async n=>evaluate("(()=>{const p=document.querySelector('[data-position]');p.value='"+n+"';p.dispatchEvent(new Event('input',{bubbles:true}));})()");
+ const switchCharacter=async name=>{await evaluate("(()=>{const p=document.querySelector('[data-character-switch]');p.value='"+name+"';p.dispatchEvent(new Event('change',{bubbles:true}));})()");await ready();};
+ await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+ await command('Runtime.enable');await command('Network.enable');const errors=[],requests=[];
+ socket.addEventListener('message',event=>{const m=JSON.parse(event.data);if(m.sessionId===sessionId&&m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails.text);});
+ socket.addEventListener('message',event=>{const m=JSON.parse(event.data);if(m.sessionId===sessionId&&m.method==='Network.requestWillBeSent')requests.push(m.params.request.url);});
+ await command('Page.navigate',{url:'http://127.0.0.1:5176/'});await ready();await delay(350);
+ let r=await state();assert.equal(r.character,'pixel');assert.equal(r.renderer.rendering,'original-pixel-svg');assert(r.renderer.frames>0);
+ assert.equal(await evaluate("document.querySelector('h1').textContent"),'Instant Response.Infinite Character.');
+ assert.equal(await evaluate("[...document.querySelectorAll('[data-buddy-demo] button')].filter(b=>!b.hidden).length"),2);
+ results.push({test:'pixel default and simplified controls',renderer:r.renderer.rendering});
+ const soundPoint=await evaluate("(()=>{const r=document.querySelector('[data-sound]').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()");
+ await command('Input.dispatchMouseEvent',{type:'mousePressed',x:soundPoint.x,y:soundPoint.y,button:'left',buttons:1,clickCount:1});
+ await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:soundPoint.x,y:soundPoint.y,button:'left',clickCount:1});await delay(350);
+ assert.equal((await state()).renderer.audioState,'running');assert.equal(await evaluate("document.querySelector('[data-sound]').getAttribute('aria-pressed')"),'true');
+ let talking=false;
+ for(let i=0;i<35;i++){
+   const voice=await evaluate('window.landingDemo.getState().voice');
+   const pixel=(await state()).renderer;
+   if(voice.phase==='playing'&&pixel.mouthOpen&&pixel.speechActive){talking=true;break;}
+   await delay(40);
+ }
+ assert(talking,'The existing recording must open the original pixel mouth.');
+ assert((await state()).renderer.mouthTargets>0);
+ assert.equal(await evaluate("document.querySelector('[data-voice-bubble]').hidden"),false);
+ let voiceShot=await command('Page.captureScreenshot',{format:'png'});await writeFile('outputs/pixel-voice-2026-10-10.png',Buffer.from(voiceShot.data,'base64'));
+ results.push({test:'existing ElevenLabs WAV decoded and pixel mouth synchronized',voice:await evaluate('window.landingDemo.getState().voice')});
+ await seek(2);await delay(1800);r=await state();assert.equal(r.renderer.state,'poked');assert(r.events.some(e=>e.type==='interaction.tap'&&e.scripted));
+ assert((await evaluate('window.landingDemo.getState().voice')).takes.some(id=>id.includes('poke.hi__happy')));
+ results.push({test:'automatic scripted poke with its recorded greeting'});
+ await seek(29);await delay(1800);r=await state();assert.equal(r.renderer.state,'tap_spam');assert(r.events.some(e=>e.count===3));
+ await evaluate("document.querySelector('[data-play]').click()");
+ assert.equal((await evaluate('window.landingDemo.getState().voice')).playing,false);assert.equal((await state()).renderer.mouthOpen,false);
+ await seek(10);r=await state();assert.equal(r.renderer.state,'listening');assert(r.events.some(e=>e.type==='voice.start'));
+ assert.equal((await evaluate('window.landingDemo.getState().voice')).playing,false);
+ await switchCharacter('slime');await seek(24);
+ await evaluate("document.querySelector('[data-sound]').click();document.querySelector('[data-sound]').click()");
+ let slimeTalking=false;
+ for(let i=0;i<45;i++){const s=(await state()).renderer;if(s.speechActive&&s.mouthOpen>0){slimeTalking=true;break;}await delay(40);}
+ assert(slimeTalking,'The same recording must drive the existing slime speech renderer.');
+ results.push({test:'existing ElevenLabs voice drives slime mouth animation'});
+ await evaluate("document.querySelector('[data-sound]').click()");
+ assert.equal((await state()).renderer.speechActive,false);
+ await switchCharacter('pixel');await seek(0);await evaluate("document.querySelector('[data-play]').click()");
+ await seek(9);let conversation=await evaluate('window.landingDemo.getState().conversation');
+ assert(conversation.held);assert(conversation.transcript.length<conversation.text.length);
+ assert.equal(await evaluate("document.querySelector('[data-speech-input]').dataset.phase"),'recording');
+ assert.equal(await evaluate("getComputedStyle(document.querySelector('.mic-hand')).display"),'block');
+ const before=conversation.transcript;await delay(550);conversation=await evaluate('window.landingDemo.getState().conversation');assert(conversation.transcript.length>before.length);
+ await evaluate("document.querySelector('[data-play]').click()");const heldTranscript=await evaluate("document.querySelector('[data-speech-transcript]').textContent");
+ await delay(450);assert.equal(await evaluate("document.querySelector('[data-speech-transcript]').textContent"),heldTranscript);
+ assert.equal(await evaluate("getComputedStyle(document.querySelector('.speech-wave i')).animationPlayState"),'paused');
+ await seek(13);conversation=await evaluate('window.landingDemo.getState().conversation');assert(!conversation.held);assert.equal(conversation.transcript,conversation.text);
+ r=await state();assert(r.events.some(e=>e.modality==='voice'&&e.text===conversation.text));
+ await seek(11);r=await state();assert.equal(r.renderer.mood,'determined');assert.equal(await evaluate("document.querySelector('[data-voice-bubble]').textContent"),'Back at it');
+ await seek(20);r=await state();assert.equal(r.renderer.state,'listening');
+ let conversationShot=await command('Page.captureScreenshot',{format:'png'});await writeFile('outputs/pixel-conversation-2026-10-10.png',Buffer.from(conversationShot.data,'base64'));
+ await seek(24);r=await state();assert.equal(r.renderer.mood,'grumpy');assert(r.events.some(e=>e.context==='user voice'&&e.mood==='grumpy'));
+ await seek(63);r=await state();assert.equal(r.renderer.mood,'whiny');
+ for(const [t,mood] of [[75,'calm'],[80,'curious'],[85,'happy']]){await seek(t);assert.equal((await state()).renderer.mood,mood);}
+ results.push({test:'silent held microphone, progressive transcript, logged voice input, early challenge and grumpy response, comfort and gradual recovery'});
+ await evaluate("document.querySelector('[data-play]').click()");
+
+ await seek(191);r=await state();assert.equal(r.renderer.state,'delegating');assert(r.events.some(e=>e.type==='subagent.start'));
+ await seek(201);r=await state();assert.equal(r.renderer.state,'helper_return');assert(r.events.some(e=>e.type==='subagent.result'));
+ results.push({test:'JSONL stream includes tools, subagents and results'});
+ await evaluate("document.querySelector('[data-play]').click()");r=await state();assert.equal(r.play,'Play');
+ const paused=r.position;await delay(1300);assert.equal((await state()).position,paused);assert((await state()).renderer.paused);results.push({test:'pause freezes the task and pixel animation'});
+ await seek(111);r=await state();assert.equal(r.renderer.state,'needs_you');assert(r.allowVisible);assert(r.events.some(e=>e.type==='permission.request'));
+ let shot=await command('Page.captureScreenshot',{format:'png'});await writeFile('outputs/pixel-attention-2026-10-10.png',Buffer.from(shot.data,'base64'));
+ await evaluate("document.querySelector('[data-allow]').click()");r=await state();assert.equal(r.state,'Resuming');assert(!r.allowVisible);assert(r.events.some(e=>e.type==='permission.granted'));results.push({test:'permission request and response'});
+ const point=await evaluate("(()=>{const r=document.querySelector('iframe').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height*.53};})()");
+ await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:point.x,y:point.y});
+ await command('Input.dispatchMouseEvent',{type:'mousePressed',x:point.x,y:point.y,button:'left',buttons:1,clickCount:1});
+ await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:point.x,y:point.y,button:'left',clickCount:1});await delay(150);
+ r=await state();assert(r.events.some(e=>e.type==='interaction.tap'));assert(r.renderer.transient);assert(r.renderer.id.includes('poked'));results.push({test:'tap plays original pixel poke animation and appends a code event'});
+ await seek(224);r=await state();assert.equal(r.renderer.state,'task_complete');assert.equal(r.renderer.mood,'proud');
+ await evaluate("document.querySelector('[data-play]').click()");const retained=(await state()).position;
+ await switchCharacter('slime');r=await state();assert.equal(r.character,'slime');assert.equal(r.mood,'Proud');assert.equal(r.position,retained);assert.equal(r.renderer.emotion,'proud');assert(r.renderer.paused);
+ await switchCharacter('pixel');r=await state();assert.equal(r.character,'pixel');assert.equal(r.position,retained);assert.equal(r.renderer.state,'task_complete');results.push({test:'character switches preserve story, mood and pause'});
+ await seek(240);r=await state();assert.equal(r.play,'Replay');await evaluate("document.querySelector('[data-play]').click()");r=await state();assert.equal(r.position,0);assert.equal(r.renderer.state,'starting');results.push({test:'completion and replay'});
+ await evaluate("document.querySelector('#about').scrollIntoView()");await delay(500);const offscreen=(await state()).position;await delay(1300);assert.equal((await state()).position,offscreen);results.push({test:'offscreen playback pauses'});
+ await evaluate("window.scrollTo({top:0,behavior:'instant'})");await delay(200);await seek(67);await delay(350);
+ shot=await command('Page.captureScreenshot',{format:'png'});await writeFile('outputs/pixel-desktop-2026-10-10.png',Buffer.from(shot.data,'base64'));
+ await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+ await command('Page.navigate',{url:'http://127.0.0.1:5176/'});await ready();await delay(200);r=await state();assert.equal(r.play,'Play');assert.equal(r.position,0);assert(r.renderer.paused);results.push({test:'reduced motion starts paused'});
+ await command('Emulation.setEmulatedMedia',{features:[]});
+ await command('Emulation.setDeviceMetricsOverride',{width:390,height:900,deviceScaleFactor:1,mobile:true});
+ await command('Page.navigate',{url:'http://127.0.0.1:5176/'});await ready();
+ await evaluate("document.querySelector('[data-buddy-demo]').scrollIntoView({block:'start',behavior:'instant'})");await delay(250);await seek(44);await delay(350);
+ const bounds=await evaluate("({width:innerWidth,scrollWidth:document.documentElement.scrollWidth})");assert(bounds.scrollWidth<=bounds.width);r=await state();assert.equal(r.character,'pixel');assert.equal(r.renderer.state,'working');
+ shot=await command('Page.captureScreenshot',{format:'png'});await writeFile('outputs/pixel-mobile-2026-10-10.png',Buffer.from(shot.data,'base64'));results.push({test:'mobile pixel demo',...bounds});
+ await seek(69);await delay(100);
+ const mobileConversation=await evaluate("(()=>{const r=document.querySelector('[data-speech-input]').getBoundingClientRect();return{right:r.right,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,held:window.landingDemo.getState().conversation.held};})()");
+ assert(mobileConversation.held);assert(mobileConversation.right<=mobileConversation.width);assert(mobileConversation.scrollWidth<=mobileConversation.width);
+ shot=await command('Page.captureScreenshot',{format:'png'});await writeFile('outputs/pixel-conversation-mobile-2026-10-10.png',Buffer.from(shot.data,'base64'));results.push({test:'mobile spoken transcript panel',...mobileConversation});
+ assert.deepEqual(errors,[],'No uncaught browser errors.');
+ assert(requests.every(url=>url.startsWith('http://127.0.0.1:5176/')||url==='about:blank'),'No external inference or speech requests.');
+ assert(requests.some(url=>url.includes('/recorded-voice/')&&url.endsWith('.wav')));
+ results.push({test:'static local assets only; no model or speech-generation requests',recordedWavRequests:requests.filter(u=>u.endsWith('.wav')).length});
+ await writeFile('outputs/demo-browser-verification.json',JSON.stringify({passed:true,scope:'Isolated headless Chrome; local pages only.',results},null,2));
+ console.log(JSON.stringify({passed:true,results}));
+}finally{socket?.close();browser.kill('SIGTERM');await new Promise(resolve=>{if(browser.exitCode!==null)resolve();else browser.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}

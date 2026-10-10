@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buddygotchi — pixel animation preview</title>
+  <meta name="description" content="The original Buddygotchi pixel animation bank, shown in a scripted browser demo. Tap the buddy to interact. No live model calls.">
+  <meta name="robots" content="noindex, follow"><link rel="canonical" href="https://mellowmachines.com/assets/pixel-buddy/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Buddygotchi pixel preview","operatingSystem":"Web browser","applicationCategory":"EntertainmentApplication"}</script>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+    .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+    button{border:0;background:transparent;width:100%;height:100%;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation}
+    button:focus-visible{outline:2px solid #789dff;outline-offset:-8px}
+    #pixel-mount{display:block;width:100%;height:100%}svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+  </style>
+</head>
+<body>
+  <h1 class="sr-only">Buddygotchi pixel preview</h1>
+  <button type="button" id="pixel-tap" aria-label="Poke the pixel buddy"><span id="pixel-mount"></span></button>
+  <script type="module" src="preview.mjs"></script>
+</body>
+</html>
