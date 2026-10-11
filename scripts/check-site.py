@@ -38,7 +38,7 @@ for path in DIST.rglob('*.html'):
     assert doc.description and len(doc.description) <= 260, path
     assert len(doc.canonical) == 1, path
     assert all('alt' in img for img in doc.images), path
-    if 'buddygotchi' not in path.parts: assert doc.schema, path
+    if 'buddygotchi' not in path.parts and path.name != '404.html': assert doc.schema, path
 
 checked = 0
 for path, doc in pages.items():

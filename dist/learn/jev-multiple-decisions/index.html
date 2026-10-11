@@ -1,0 +1,99 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Multiple Jev decisions in one call: mood, animation and voice — Mellow Machines Lab</title><meta name="description" content="Batch named Jev questions against shared context. See Buddygotchi’s mood, animation and voice roster, a JSON example and the limits of independent choices."><link rel="canonical" href="https://mellowmachines.com/learn/jev-multiple-decisions/"><link rel="icon" href="/assets/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Mellow Machines Lab guides" href="/feed.xml"><link rel="stylesheet" href="/lab.css"><meta property="og:site_name" content="Mellow Machines Lab"><meta property="og:locale" content="en_US"><meta property="og:title" content="Multiple Jev decisions in one call: mood, animation and voice — Mellow Machines Lab"><meta property="og:description" content="Batch named Jev questions against shared context. See Buddygotchi’s mood, animation and voice roster, a JSON example and the limits of independent choices."><meta property="og:type" content="article"><meta property="og:url" content="https://mellowmachines.com/learn/jev-multiple-decisions/"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Multiple Jev decisions in one call: mood, animation and voice — Mellow Machines Lab"><meta name="twitter:description" content="Batch named Jev questions against shared context. See Buddygotchi’s mood, animation and voice roster, a JSON example and the limits of independent choices."><meta name="robots" content="max-image-preview:large"></head><body><a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="container header-inner"><a class="lab-brand" href="/"><img src="/assets/favicon.svg" width="32" height="32" alt="">Mellow Machines <span>Lab</span></a><nav aria-label="Main navigation"><a href="/#demo">Demo</a><a href="/#projects">Projects</a><a href="/learn/" aria-current="page">Technical sharing</a><a href="/#about">About</a></nav></div></header><main id="main" class="container guide-main"><nav class="guide-breadcrumb" aria-label="Breadcrumb"><a href="/">Mellow Machines Lab</a><span>/</span><a href="/learn/">Technical sharing</a><span>/</span><span aria-current="page">Multiple Jev decisions in one call: mood, animation and voice</span></nav><header class="guide-heading"><p class="eyebrow">Jev implementation guide</p><h1>Multiple Jev decisions in one call: mood, animation and voice</h1><p class="guide-lead">Jev can answer several independent questions about the same event in one call. Here is the pattern used by Buddygotchi and MellowHarness.</p><p class="guide-meta">Co-authors: <a href="https://github.com/chicco4life">Federico Li</a> & <a href="https://github.com/0xfdsa">0xfdsa</a> · Published 11 October 2026 · Sources checked 11 October 2026</p></header><div class="guide-layout"><nav class="guide-toc" aria-label="On this page"><b>On this page</b><a href="#can-jev-answer-several-questions-in-one-call">Can Jev answer several questions in one call?</a><a href="#what-buddygotchi-asks">What Buddygotchi asks</a><a href="#a-small-request-you-can-inspect">A small request you can inspect</a><a href="#how-the-harness-keeps-the-result-usable">How the harness keeps the result usable</a><a href="#what-this-says-about-response-speed">What this says about response speed</a></nav><article class="guide-body"><h2 id="can-jev-answer-several-questions-in-one-call">Can Jev answer several questions in one call?</h2>
+<p><strong>Yes. Jev accepts several named questions against one shared state.</strong> MellowHarness uses that interface to ask for a lasting mood and a momentary reaction in the same decision pass. Buddygotchi can also request animation, hold duration and voice selectors. Application code turns the answers into a visible response.</p>
+<p>The questions share context, but they are evaluated independently. A question cannot read another question’s newly selected answer within that call. This is useful for several judgments about the same event; a decision that depends on an earlier result needs an application step or another call. See <a href="https://docs.typesafe.ai/cookbooks/parallel_questions">Typesafe’s parallel-question cookbook</a>.</p>
+<h2 id="what-buddygotchi-asks">What Buddygotchi asks</h2>
+<p>The reviewed Buddygotchi implementation combines these choices when the character has voice assets:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Question key</th>
+<th>What it controls</th>
+<th>Where the choice comes from</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mood</code></td>
+<td>Lasting emotional direction</td>
+<td>Stay in the current mood or follow an allowed graph edge</td>
+</tr>
+<tr>
+<td><code>react.mood</code></td>
+<td>Expression for this moment</td>
+<td>Available character expressions, or no reaction</td>
+</tr>
+<tr>
+<td><code>react.animation</code></td>
+<td>A task-finish animation</td>
+<td>Success, failure, reply or none</td>
+</tr>
+<tr>
+<td><code>react.loops</code></td>
+<td>How long the expression holds</td>
+<td>Authored duration choices</td>
+</tr>
+<tr>
+<td><code>say.feeling</code></td>
+<td>A vocal feeling</td>
+<td>Authored feeling categories, or silence</td>
+</tr>
+<tr>
+<td><code>say.about</code></td>
+<td>What the sound refers to</td>
+<td>Authored event topics, or none</td>
+</tr>
+<tr>
+<td><code>say.kind</code></td>
+<td>Size of the vocal response</td>
+<td>A sound, word or short authored phrase category</td>
+</tr>
+</tbody></table></div>
+<p>That is <strong>seven questions in one pass when voice choices are available</strong>. A pack without recorded takes omits the voice questions. The working, idle or needs-you <strong>operational state comes from coding-agent events</strong>, separately from these model choices.</p>
+<p>The lasting mood and the reaction expression have different jobs. A character can stay grumpy while briefly showing surprise. Voice selectors choose among existing recordings; this path does not generate unrestricted speech. The <a href="/learn/coding-agent-companion/">companion architecture</a> explains how personality, mood and task state fit together.</p>
+<h2 id="a-small-request-you-can-inspect">A small request you can inspect</h2>
+<p>Here is an illustrative request body for <code>POST https://api.typesafe.ai/v1/systemone</code>. It reduces the real roster to three questions to make the pattern easy to read. The mood options below are examples; an application should obtain its actual options from the character’s current graph.</p>
+<pre><code class="language-json">{
+  &quot;model&quot;: &quot;jev-latest&quot;,
+  &quot;state&quot;: {
+    &quot;personality&quot;: &quot;Playful, persistent, easily pleased by progress.&quot;,
+    &quot;current_mood&quot;: &quot;curious&quot;,
+    &quot;operational_state&quot;: &quot;working&quot;,
+    &quot;event&quot;: &quot;Tests failed once. The coding agent found the cause and is retrying.&quot;
+  },
+  &quot;questions&quot;: {
+    &quot;mood&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Choose the lasting mood after this event.&quot;,
+      &quot;criteria&quot;: {
+        &quot;curious&quot;: &quot;Stay curious while investigating.&quot;,
+        &quot;determined&quot;: &quot;Become focused on making the retry work.&quot;
+      }
+    },
+    &quot;react.mood&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Choose a brief expression for the current event.&quot;,
+      &quot;criteria&quot;: {
+        &quot;none&quot;: &quot;This event does not need a visible reaction.&quot;,
+        &quot;determined&quot;: &quot;A focused expression fits the retry.&quot;,
+        &quot;grumpy&quot;: &quot;A brief frustrated expression fits the failed test.&quot;
+      }
+    },
+    &quot;say.feeling&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Choose a vocal feeling about the current event.&quot;,
+      &quot;criteria&quot;: {
+        &quot;none&quot;: &quot;Stay silent.&quot;,
+        &quot;upset&quot;: &quot;The failed test warrants a frustrated sound.&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<p>The API returns answers under those same question keys, with each selected choice and its probability distribution. This example is not a recorded model result. Consult the <a href="https://docs.typesafe.ai/api">Typesafe API contract</a> for authentication and the complete response format.</p>
+<h2 id="how-the-harness-keeps-the-result-usable">How the harness keeps the result usable</h2>
+<p>MellowHarness prepares context from authored steering, recent events and the action roster, then sends the named questions together. The adapter checks returned values against the offered choices. Buddygotchi’s reaction handler applies its own availability rules and maps accepted selectors to character assets.</p>
+<p>If the reaction choice is <code>none</code>, application code skips the reaction even if other selectors returned values. If no suitable recording exists, the face can play in silence. A batched answer does not override an attention signal or approve a coding agent’s permission request.</p>
+<p>When a later decision truly requires the newly chosen mood, apply that mood first and ask again with the updated context. Sharing state can reduce repeated requests, but it does not establish a guarantee that independently selected answers form a consistent combination. Validate the combination your application intends to execute.</p>
+<h2 id="what-this-says-about-response-speed">What this says about response speed</h2>
+<p>Batching lets several choices use one request instead of a chain of calls over repeated context. The actual benefit depends on the roster, context, provider and application. Our <a href="/learn/jev-decision-latency/">historical 105-pass timing sample</a> reports a 227 ms median decision pass; it is not a controlled comparison of batched versus separate questions or an end-to-end hardware benchmark.</p>
+<p>Start with <a href="/learn/mellowharness-quickstart/">the scripted MellowHarness quickstart</a> to inspect the loop without a model key. Then connect Jev and measure both decision suitability and the complete interaction path on your own events. For the surrounding architecture, read <a href="/learn/agent-harness-design/">agent harness design</a>.</p>
+<aside class="guide-sources"><h2>Sources & next steps</h2><p>This guide uses the repository revision and references checked on 11 October 2026. Check the current documentation for later changes.</p><a href="https://github.com/Mellow-Machines-Lab/buddygotchi/blob/08f147f278d8748474ac4d02080859135ad5dd9b/app/BoopKit/Actions/ReactAction.swift">Repository source used for this guide</a><a href="https://github.com/Mellow-Machines-Lab/buddygotchi/blob/08f147f278d8748474ac4d02080859135ad5dd9b/app/BoopKit/Actions/MoodAction.swift">Mood graph choices</a><a href="https://github.com/Mellow-Machines-Lab/MellowHarness/blob/5eb594fe6fc824654c4430ee911b7e55dbf7c866/Sources/MellowHarness/JevBrain.swift">Jev request and answer adapter</a><a href="https://docs.typesafe.ai/cookbooks/parallel_questions">Typesafe parallel questions</a><a href="https://docs.typesafe.ai/api">Typesafe API contract</a><a href="https://github.com/Mellow-Machines-Lab/buddygotchi">Current repository</a><a href="/learn/">All technical sharings</a></aside><section class="read-next"><h2>Keep building</h2><a href="/learn/system-one-models/"><b>System One Models: Jev and typed decision interfaces</b><span>A source-backed guide to Jev, OpenAI Decisions API and the open-source Laya project. Typed action choices, integration status and evaluation boundaries.</span></a><a href="/learn/agent-harness-design/"><b>Agent harness design for fast, expressive feedback</b><span>How MellowHarness combines a System One decision loop, bounded action choices, immediate rules and a shared JSONL event log for AI hardware and applications.</span></a><a href="/learn/coding-agent-companion/"><b>Build an expressive companion for Claude Code and Codex</b><span>Connect coding-agent hooks to Buddygotchi’s state, mood and character. MellowHarness architecture, public build requirements and scripted-demo boundaries.</span></a><a href="/learn/jev-decision-latency/"><b>Jev decision-pass latency: a 105-pass application log</b><span>An audited historical Jev sample: 227 ms median across 105 decision passes. Full distribution, sanitized data and limits of the measurement.</span></a><a href="/learn/mellowharness-quickstart/"><b>Try MellowHarness without a model API key</b><span>Run Beacon, send events and inspect how rules and model choices meet in the log.</span></a></section></article></div></main><footer class="site-footer"><div class="container footer-inner"><div><b>Mellow Machines Lab</b><p>Co-authors: <a href="https://github.com/chicco4life">Federico Li</a> & <a href="https://github.com/0xfdsa">0xfdsa</a>.</p></div><div class="footer-links"><a href="/learn/">Technical sharing</a><a href="https://github.com/Mellow-Machines-Lab">GitHub</a><a href="https://mellowmachines.substack.com">Substack</a><a href="/feed.xml">RSS</a></div></div></footer><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Multiple Jev decisions in one call: mood, animation and voice","description":"Batch named Jev questions against shared context. See Buddygotchi’s mood, animation and voice roster, a JSON example and the limits of independent choices.","url":"https://mellowmachines.com/learn/jev-multiple-decisions/","datePublished":"2026-10-11","dateModified":"2026-10-11","author":[{"@type":"Person","name":"Federico Li","url":"https://github.com/chicco4life"},{"@type":"Person","name":"0xfdsa","url":"https://github.com/0xfdsa"}],"publisher":{"@id":"https://mellowmachines.com/#lab"},"citation":["https://github.com/Mellow-Machines-Lab/buddygotchi/blob/08f147f278d8748474ac4d02080859135ad5dd9b/app/BoopKit/Actions/ReactAction.swift","https://github.com/Mellow-Machines-Lab/buddygotchi/blob/08f147f278d8748474ac4d02080859135ad5dd9b/app/BoopKit/Actions/MoodAction.swift","https://github.com/Mellow-Machines-Lab/MellowHarness/blob/5eb594fe6fc824654c4430ee911b7e55dbf7c866/Sources/MellowHarness/JevBrain.swift","https://docs.typesafe.ai/cookbooks/parallel_questions","https://docs.typesafe.ai/api"],"mainEntityOfPage":"https://mellowmachines.com/learn/jev-multiple-decisions/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Mellow Machines Lab","item":"https://mellowmachines.com/"},{"@type":"ListItem","position":2,"name":"Technical sharing","item":"https://mellowmachines.com/learn/"},{"@type":"ListItem","position":3,"name":"Multiple Jev decisions in one call: mood, animation and voice","item":"https://mellowmachines.com/learn/jev-multiple-decisions/"}]}]}</script></body></html>

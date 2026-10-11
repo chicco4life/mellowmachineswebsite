@@ -57,6 +57,8 @@ These layers have different jobs. A working character can look determined, grump
 
 The current character system uses authored animations and cues. Jev selects a fitting response; it does not write unrestricted dialogue or generate a new animation on every pass. The bounded vocabulary still permits many context-dependent sequences of behavior.
 
+Several choices can share one model request. In Buddygotchi, lasting mood and momentary expression are separate questions about the same event, alongside animation and available voice selectors. The [Jev batching guide](/learn/jev-multiple-decisions/) shows the roster and explains when a dependent choice needs another step.
+
 ## Where the runtime and model run
 
 MellowHarness currently provides **JevBrain** and **ScriptedBrain** behind a brain contract. Jev uses a hosted decision API. ScriptedBrain lets builders exercise the same runtime without a model key. Other providers require an adapter; a compatible interface is not proof of a tested integration.

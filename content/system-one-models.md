@@ -12,6 +12,8 @@ Typesafe’s System One API accepts a state and named typed questions. The curre
 
 In Buddygotchi, mood choices come from the character’s graph. Available neighboring moods and transition guidance depend on current context. The model selects among them; the renderer uses authored animation and sound assets for the resulting mood and task state.
 
+One call can contain several named questions about the same state. Buddygotchi uses this for lasting mood, momentary expression, animation and available voice selectors. The answers are independent; a new answer is not input to the next question inside the call. Follow the [Jev multiple-decision walkthrough](/learn/jev-multiple-decisions/) for the actual question roster and an illustrative JSON request.
+
 See [Typesafe’s API contract](https://docs.typesafe.ai/api) and [its introduction to Jev and System One Models](https://typesafe.ai/blog/introducing-system-one-models-and-jev). Provider speed claims and our application measurements are different evidence; the [105-pass Jev sample](/learn/jev-decision-latency/) documents what we actually recorded.
 
 ## OpenAI Decisions API and Laya

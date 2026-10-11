@@ -19,6 +19,15 @@
     "date": "2026-10-10"
   },
   {
+    "id": "jev-batch",
+    "group": "Technical sharings",
+    "format": "Jev implementation guide",
+    "title": "Multiple Jev decisions in one call: mood, animation and voice",
+    "summary": "Batch named Jev questions against shared context. See Buddygotchi\u2019s mood, animation and voice roster, a JSON example and the limits of independent choices.",
+    "url": "/learn/jev-multiple-decisions/",
+    "date": "2026-10-11"
+  },
+  {
     "id": "companion",
     "group": "Technical sharings",
     "format": "Companion architecture",

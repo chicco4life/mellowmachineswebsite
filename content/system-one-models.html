@@ -5,6 +5,7 @@
 <h2>Jev in the current harness</h2>
 <p>Typesafe’s System One API accepts a state and named typed questions. The current MellowHarness <code>JevBrain</code> uses <code>jev-latest</code> and choice questions, with descriptions of when each option fits. The adapter checks that returned choices were offered.</p>
 <p>In Buddygotchi, mood choices come from the character’s graph. Available neighboring moods and transition guidance depend on current context. The model selects among them; the renderer uses authored animation and sound assets for the resulting mood and task state.</p>
+<p>One call can contain several named questions about the same state. Buddygotchi uses this for lasting mood, momentary expression, animation and available voice selectors. The answers are independent; a new answer is not input to the next question inside the call. Follow the <a href="/learn/jev-multiple-decisions/">Jev multiple-decision walkthrough</a> for the actual question roster and an illustrative JSON request.</p>
 <p>See <a href="https://docs.typesafe.ai/api">Typesafe’s API contract</a> and <a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">its introduction to Jev and System One Models</a>. Provider speed claims and our application measurements are different evidence; the <a href="/learn/jev-decision-latency/">105-pass Jev sample</a> documents what we actually recorded.</p>
 <h2>OpenAI Decisions API and Laya</h2>
 <p>Two relevant alternatives are worth separating from implemented integrations.</p>

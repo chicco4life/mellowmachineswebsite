@@ -36,6 +36,12 @@ Open `http://127.0.0.1:5176/`. Reuse an existing preview server if that port is 
 
 Update an article’s `updated` date when its content or meaningful links change. Keep publication dates and the historical Substack canonical intact. Do not treat build time as a freshness signal.
 
+The production build rejects any canonical origin other than `https://mellowmachines.com`. Article content, source links and metadata ship in the initial HTML. Compact structured data follows the content; it describes the visible articles and does not promise search placement. Demo helper pages remain crawlable with `noindex`.
+
+After a content release is deployed, preview the changed URL list with `npm run notify:indexnow`. Use `npm run notify:indexnow -- --submit` to notify participating search engines. The script verifies the live ownership file and pages before submitting. The ownership file is public by design; it is not an account credential. A successful notification acknowledges receipt, not indexing or ranking. This is not Google's Indexing API.
+
+Connect the domain to Google Search Console and Bing Webmaster Tools to measure discovery. Track search queries and guide visits separately from a fixed panel of AI-answer questions. Google reports AI Overviews and AI Mode traffic in the Search Console Web report; there is no additional AI-specific markup requirement. See [Google's AI search guidance](https://developers.google.com/search/docs/appearance/ai-features) and [IndexNow documentation](https://www.indexnow.org/documentation).
+
 ## GitHub Pages setup
 
 The workflow builds and checks every push to `main`, then publishes **only `dist/`**. Pull requests run the build/checks without deploying.

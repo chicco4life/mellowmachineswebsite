@@ -15,6 +15,8 @@ DIST = ROOT / 'dist'
 SITE = json.loads((ROOT / 'content/site.json').read_text())
 GUIDES = json.loads((ROOT / 'content/articles.json').read_text())
 ORIGIN = SITE['origin']
+RELEASE_DATE = date.fromisoformat(SITE['updated'])
+assert ORIGIN == 'https://mellowmachines.com', 'Unexpected production host'
 
 class Page(HTMLParser):
     def __init__(self, text):
@@ -35,7 +37,8 @@ class Page(HTMLParser):
     def handle_endtag(self, tag):
         if tag == 'title': self.in_title = False
         if tag == 'script' and self.in_schema:
-            self.schema.extend(json.loads(self.buffer)['@graph']); self.in_schema = False
+            data = json.loads(self.buffer)
+            self.schema.extend(data.get('@graph', [data])); self.in_schema = False
         if tag in ('script', 'style'): self.hidden = False
     def handle_data(self, value):
         if self.in_title: self.title += value
@@ -72,11 +75,42 @@ for g in GUIDES:
     assert article['datePublished'][:10] == g.get('published', g['added'])
     assert article['dateModified'][:10] == g['updated']
     assert date.fromisoformat(g['added']) <= date.fromisoformat(g['updated'])
-    assert all(date.fromisoformat(g[k]) <= date(2026, 10, 10) for k in ('added','updated','sourceChecked'))
+    assert all(date.fromisoformat(g[k]) <= RELEASE_DATE for k in ('added','updated','sourceChecked'))
     assert len(next(s for s in page.schema if s['@type'] == 'BreadcrumbList')['itemListElement']) == 3
     if not g.get('canonical'):
         assert article['mainEntityOfPage'] == ORIGIN + g['path'] == page.canonical
     assert all(u in page.links for u in article['citation']), 'Invisible source citation'
+
+# Production content must remain readable without scripts, while helper renderers
+# stay crawlable but excluded from the index. Metadata precedes the visible text;
+# the compact schema describes that text after the main content.
+for route, page in pages.items():
+    html = (DIST / route.strip('/') / 'index.html').read_text()
+    assert 'nosnippet' not in page.meta.get('robots', '')
+    assert '<title>' in html.split('</head>')[0]
+    assert 'rel="canonical"' in html.split('</head>')[0]
+    if route != '/buddygotchi/':
+        assert html.index('type="application/ld+json"') > html.index('</main>')
+        assert len(re.findall('type="application/ld\\+json"', html)) == 1
+    organizations = [s for s in page.schema if s['@type'] == 'Organization']
+    assert len(organizations) == (1 if route == '/' else 0), route
+for helper in ('pixel-buddy','boop-preview'):
+    helper_page = Page((DIST / 'assets' / helper / 'index.html').read_text())
+    assert 'noindex' in helper_page.meta['robots']
+assert 'Allow: /' in (DIST / 'robots.txt').read_text()
+key = SITE['indexNowKey']
+assert re.fullmatch('[a-f0-9]{32}', key)
+assert (DIST / (key + '.txt')).read_text().strip() == key
+
+# The tutorial request is an illustrative API-shaped fixture, not a made-up
+# observed answer or benchmark. Named questions must expose a bounded roster.
+batch_text = (ROOT / 'content/jev-multiple-decisions.md').read_text()
+request = json.loads(re.search(r'```json\n(.*?)\n```', batch_text, re.S)[1])
+assert request['model'] == 'jev-latest'
+assert isinstance(request['state'], dict)
+assert len(request['questions']) == 3
+assert all(q['type'] == 'choice' and q['instructions'] and len(q['criteria']) >= 2 for q in request['questions'].values())
+assert 'independently' in batch_text and 'not a recorded model result' in batch_text
 
 sitemap = ET.parse(DIST / 'sitemap.xml')
 ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
@@ -114,6 +148,6 @@ for route,p in pages.items():
     assert not any(t in p.visible for t in ('publication-workspace', '/Users/work/', 'question-panel.csv'))
     assert not any(s['@type'] in ('Offer','AggregateRating') for s in p.schema)
 
-report = {'passed':True,'staticReachableRoutes':len(visited),'originalGuideURLs':len(GUIDES)-1,'timingObservations':len(latencies),'checks':['unique titles and descriptions','all article routes reachable in static HTML','visible sources match schema','authorship and truthful dates','complete breadcrumbs','canonical sitemap dates','full latency data integrity and privacy','synthetic JSONL matches decision record shape'],'limits':['No production crawl/indexing result','No real-user Core Web Vitals result','No externally configured analytics or webmaster properties']}
+report = {'passed':True,'staticReachableRoutes':len(visited),'originalGuideURLs':len(GUIDES)-1,'timingObservations':len(latencies),'checks':['unique titles and descriptions','all article routes reachable in static HTML','visible sources match schema','authorship and truthful dates','complete breadcrumbs','canonical sitemap dates','content before compact schema','utility renderers excluded from index','deployed IndexNow ownership file shape','illustrative Jev request contract','full latency data integrity and privacy','synthetic JSONL matches decision record shape'],'limits':['No production crawl/indexing result','No real-user Core Web Vitals result','No externally configured analytics or webmaster properties']}
 (ROOT / 'outputs/seo-verification.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report))

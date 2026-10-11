@@ -5,7 +5,7 @@
     "body": "content/agent-harness-design.html",
     "title": "Agent harness design for fast, expressive feedback",
     "description": "How MellowHarness combines a System One decision loop, bounded action choices, immediate rules and a shared JSONL event log for AI hardware and applications.",
-    "lead": "The loop, its context and two feedback paths. A maintained guide to the architecture behind MellowHarness.",
+    "lead": "MellowHarness is an open-source agent harness: immediate rules and bounded model choices share a JSONL event log, which supplies context for the next iteration.",
     "category": "Architecture guide",
     "source": "MellowHarness",
     "sourceFile": "ARCHITECTURE.md",
@@ -18,13 +18,14 @@
       }
     ],
     "related": [
+      "jev-batch",
       "quickstart",
       "models",
       "latency",
       "companion"
     ],
     "added": "2026-10-10",
-    "updated": "2026-10-10",
+    "updated": "2026-10-11",
     "sourceChecked": "2026-10-10",
     "autoToc": true,
     "toc": [],
@@ -36,7 +37,7 @@
     "body": "content/system-one-models.html",
     "title": "System One Models: Jev and typed decision interfaces",
     "description": "A source-backed guide to Jev, OpenAI Decisions API and the open-source Laya project. Typed action choices, integration status and evaluation boundaries.",
-    "lead": "Choose an action, score an input or make a bounded judgment. Where decision models fit in a responsive agent harness.",
+    "lead": "System One Models make structured judgments such as choosing an action or scoring an input. This guide covers Jev, alternative decision interfaces and their current integration status.",
     "category": "Decision model guide",
     "source": "MellowHarness",
     "sourceFile": "Sources/MellowHarness/JevBrain.swift",
@@ -59,16 +60,63 @@
       }
     ],
     "related": [
+      "jev-batch",
       "agent-design",
       "quickstart",
       "latency"
     ],
     "added": "2026-10-10",
-    "updated": "2026-10-10",
+    "updated": "2026-10-11",
     "sourceChecked": "2026-10-10",
     "autoToc": true,
     "toc": [],
     "markdown": "content/system-one-models.md"
+  },
+  {
+    "id": "jev-batch",
+    "path": "/learn/jev-multiple-decisions/",
+    "body": "content/jev-multiple-decisions.html",
+    "markdown": "content/jev-multiple-decisions.md",
+    "title": "Multiple Jev decisions in one call: mood, animation and voice",
+    "description": "Batch named Jev questions against shared context. See Buddygotchi\u2019s mood, animation and voice roster, a JSON example and the limits of independent choices.",
+    "lead": "Jev can answer several independent questions about the same event in one call. Here is the pattern used by Buddygotchi and MellowHarness.",
+    "category": "Jev implementation guide",
+    "source": "buddygotchi",
+    "sourceFile": "app/BoopKit/Actions/ReactAction.swift",
+    "sources": [
+      {
+        "repo": "buddygotchi",
+        "file": "app/BoopKit/Actions/MoodAction.swift",
+        "label": "Mood graph choices"
+      },
+      {
+        "repo": "MellowHarness",
+        "file": "Sources/MellowHarness/JevBrain.swift",
+        "label": "Jev request and answer adapter"
+      }
+    ],
+    "externalSources": [
+      {
+        "label": "Typesafe parallel questions",
+        "url": "https://docs.typesafe.ai/cookbooks/parallel_questions"
+      },
+      {
+        "label": "Typesafe API contract",
+        "url": "https://docs.typesafe.ai/api"
+      }
+    ],
+    "related": [
+      "models",
+      "agent-design",
+      "companion",
+      "latency",
+      "quickstart"
+    ],
+    "added": "2026-10-11",
+    "updated": "2026-10-11",
+    "sourceChecked": "2026-10-11",
+    "autoToc": true,
+    "toc": []
   },
   {
     "id": "companion",
@@ -76,7 +124,7 @@
     "body": "content/coding-agent-companion.html",
     "title": "Build an expressive companion for Claude Code and Codex",
     "description": "Connect coding-agent hooks to Buddygotchi\u2019s state, mood and character. MellowHarness architecture, public build requirements and scripted-demo boundaries.",
-    "lead": "Coding-agent events become work, attention and character, through a small integration layer and bounded model choices.",
+    "lead": "Buddygotchi connects Claude Code and Codex events to a coding companion through AgentHooks and MellowHarness. Task state comes from events; Jev chooses expressive reactions.",
     "category": "Companion architecture",
     "source": "buddygotchi",
     "sourceFile": "characters/CHARACTER.md",
@@ -95,12 +143,13 @@
       }
     ],
     "related": [
+      "jev-batch",
       "agent-design",
       "build-guide",
       "parts"
     ],
     "added": "2026-10-10",
-    "updated": "2026-10-10",
+    "updated": "2026-10-11",
     "sourceChecked": "2026-10-10",
     "autoToc": true,
     "toc": [],
@@ -112,7 +161,7 @@
     "body": "content/jev-decision-latency.html",
     "title": "Jev decision-pass latency: a 105-pass application log",
     "description": "An audited historical Jev sample: 227 ms median across 105 decision passes. Full distribution, sanitized data and limits of the measurement.",
-    "lead": "A full distribution and an explicit measurement boundary, from our September 28 prototype log.",
+    "lead": "The September 28 prototype log contains 105 Jev decision passes with a 227 ms median. This measures the decision pass, excluding speech capture, device transport and animation playback.",
     "category": "Measured application sample",
     "source": "MellowHarness",
     "sourceFile": "ARCHITECTURE.md",
@@ -123,7 +172,7 @@
       "companion"
     ],
     "added": "2026-10-10",
-    "updated": "2026-10-10",
+    "updated": "2026-10-11",
     "sourceChecked": "2026-10-10",
     "autoToc": true,
     "toc": [],
@@ -180,7 +229,7 @@
     "body": "content/esp32-guide.html",
     "title": "Build an ESP32 AI companion with a host-side agent harness",
     "description": "Connect an ESP32 display to a Mac host with Buddygotchi and MellowHarness. Hardware requirements, host setup and the boundary between feedback and model choices.",
-    "lead": "A practical starting point for responsive hardware: a supported display board, a host-side loop and application-defined reactions.",
+    "lead": "The current ESP32 AI companion build pairs a Mac host running MellowHarness with an ESP32 display. Jev inference is hosted; it does not run on the microcontroller.",
     "category": "Architecture guide",
     "source": "buddygotchi",
     "sourceFile": "README.md",
@@ -215,7 +264,7 @@
       "parts"
     ],
     "added": "2026-10-09",
-    "updated": "2026-10-09",
+    "updated": "2026-10-11",
     "sourceChecked": "2026-10-09"
   },
   {
@@ -318,7 +367,7 @@
     "body": "content/esp32-parts.html",
     "title": "ESP32 parts list for a Buddygotchi build",
     "description": "The exact CYD board, USB cable, Mac requirements and optional speaker or storage for the public Pixel companion. Includes an AMOLED board comparison and source links.",
-    "lead": "What to buy, what is already on the board, and what you can leave for later.",
+    "lead": "Start a public Buddygotchi build with the supported CYD display board, a USB data cable, a Mac host and the Pixel character pack. Optional audio and storage depend on the board and pack.",
     "category": "Hardware reference",
     "source": "buddygotchi",
     "sourceFile": "firmware/README.md",
@@ -361,7 +410,7 @@
       "esp32"
     ],
     "added": "2026-10-09",
-    "updated": "2026-10-09",
+    "updated": "2026-10-11",
     "sourceChecked": "2026-10-09"
   }
 ]

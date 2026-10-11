@@ -24,11 +24,13 @@ The small integration layer is reusable beyond this character. Follow the [Agent
 
 This is more flexible than assigning one fixed animation to every trigger, while remaining bounded enough for an application to inspect and control. It does not require unrestricted generated speech for each interaction.
 
+The [Jev multiple-decision guide](/learn/jev-multiple-decisions/) shows how lasting mood, a brief expression and voice selectors share one pass. Application code applies the results to available assets; working or needs-you state continues to come from the agent session.
+
 ## Browser demo versus public hardware build
 
-The [landing-page demo](/#demo) plays an authored four-minute task with tool calls, subagents, failures, taps and simulated user conversation. It uses existing animation and selected recorded voice assets in the current review preview. It makes **no live Jev calls**, uses no visitor microphone and does not measure device latency.
+The [landing-page demo](/#demo) plays an authored four-minute task with tool calls, subagents, failures, taps and simulated user conversation. It uses existing animation and selected recorded voice assets in the browser demo. It makes **no live Jev calls**, uses no visitor microphone and does not measure device latency.
 
-The public build is a separate, documented route: a Mac host, supported ESP32 CYD display and the public Pixel pack. Pixel includes authored personality, moods, faces and sound effects; its public pack does **not** include the recorded-voice bank used in the review demo. Do not expect a board or microSD card alone to reproduce those voices.
+The public build is a separate, documented route: a Mac host, supported ESP32 CYD display and the public Pixel pack. Pixel includes authored personality, moods, faces and sound effects; its public pack does **not** include the recorded-voice bank used in the browser demo. Do not expect a board or microSD card alone to reproduce those voices.
 
 See the [build walkthrough](/learn/buddygotchi-build/) and [compatible parts](/learn/esp32-parts-list/) for current supported assets and hardware.
 

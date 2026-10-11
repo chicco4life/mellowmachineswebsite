@@ -1,0 +1,98 @@
+<h2>Can Jev answer several questions in one call?</h2>
+<p><strong>Yes. Jev accepts several named questions against one shared state.</strong> MellowHarness uses that interface to ask for a lasting mood and a momentary reaction in the same decision pass. Buddygotchi can also request animation, hold duration and voice selectors. Application code turns the answers into a visible response.</p>
+<p>The questions share context, but they are evaluated independently. A question cannot read another question’s newly selected answer within that call. This is useful for several judgments about the same event; a decision that depends on an earlier result needs an application step or another call. See <a href="https://docs.typesafe.ai/cookbooks/parallel_questions">Typesafe’s parallel-question cookbook</a>.</p>
+<h2>What Buddygotchi asks</h2>
+<p>The reviewed Buddygotchi implementation combines these choices when the character has voice assets:</p>
+<table>
+<thead>
+<tr>
+<th>Question key</th>
+<th>What it controls</th>
+<th>Where the choice comes from</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mood</code></td>
+<td>Lasting emotional direction</td>
+<td>Stay in the current mood or follow an allowed graph edge</td>
+</tr>
+<tr>
+<td><code>react.mood</code></td>
+<td>Expression for this moment</td>
+<td>Available character expressions, or no reaction</td>
+</tr>
+<tr>
+<td><code>react.animation</code></td>
+<td>A task-finish animation</td>
+<td>Success, failure, reply or none</td>
+</tr>
+<tr>
+<td><code>react.loops</code></td>
+<td>How long the expression holds</td>
+<td>Authored duration choices</td>
+</tr>
+<tr>
+<td><code>say.feeling</code></td>
+<td>A vocal feeling</td>
+<td>Authored feeling categories, or silence</td>
+</tr>
+<tr>
+<td><code>say.about</code></td>
+<td>What the sound refers to</td>
+<td>Authored event topics, or none</td>
+</tr>
+<tr>
+<td><code>say.kind</code></td>
+<td>Size of the vocal response</td>
+<td>A sound, word or short authored phrase category</td>
+</tr>
+</tbody></table>
+<p>That is <strong>seven questions in one pass when voice choices are available</strong>. A pack without recorded takes omits the voice questions. The working, idle or needs-you <strong>operational state comes from coding-agent events</strong>, separately from these model choices.</p>
+<p>The lasting mood and the reaction expression have different jobs. A character can stay grumpy while briefly showing surprise. Voice selectors choose among existing recordings; this path does not generate unrestricted speech. The <a href="/learn/coding-agent-companion/">companion architecture</a> explains how personality, mood and task state fit together.</p>
+<h2>A small request you can inspect</h2>
+<p>Here is an illustrative request body for <code>POST https://api.typesafe.ai/v1/systemone</code>. It reduces the real roster to three questions to make the pattern easy to read. The mood options below are examples; an application should obtain its actual options from the character’s current graph.</p>
+<pre><code class="language-json">{
+  &quot;model&quot;: &quot;jev-latest&quot;,
+  &quot;state&quot;: {
+    &quot;personality&quot;: &quot;Playful, persistent, easily pleased by progress.&quot;,
+    &quot;current_mood&quot;: &quot;curious&quot;,
+    &quot;operational_state&quot;: &quot;working&quot;,
+    &quot;event&quot;: &quot;Tests failed once. The coding agent found the cause and is retrying.&quot;
+  },
+  &quot;questions&quot;: {
+    &quot;mood&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Choose the lasting mood after this event.&quot;,
+      &quot;criteria&quot;: {
+        &quot;curious&quot;: &quot;Stay curious while investigating.&quot;,
+        &quot;determined&quot;: &quot;Become focused on making the retry work.&quot;
+      }
+    },
+    &quot;react.mood&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Choose a brief expression for the current event.&quot;,
+      &quot;criteria&quot;: {
+        &quot;none&quot;: &quot;This event does not need a visible reaction.&quot;,
+        &quot;determined&quot;: &quot;A focused expression fits the retry.&quot;,
+        &quot;grumpy&quot;: &quot;A brief frustrated expression fits the failed test.&quot;
+      }
+    },
+    &quot;say.feeling&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Choose a vocal feeling about the current event.&quot;,
+      &quot;criteria&quot;: {
+        &quot;none&quot;: &quot;Stay silent.&quot;,
+        &quot;upset&quot;: &quot;The failed test warrants a frustrated sound.&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<p>The API returns answers under those same question keys, with each selected choice and its probability distribution. This example is not a recorded model result. Consult the <a href="https://docs.typesafe.ai/api">Typesafe API contract</a> for authentication and the complete response format.</p>
+<h2>How the harness keeps the result usable</h2>
+<p>MellowHarness prepares context from authored steering, recent events and the action roster, then sends the named questions together. The adapter checks returned values against the offered choices. Buddygotchi’s reaction handler applies its own availability rules and maps accepted selectors to character assets.</p>
+<p>If the reaction choice is <code>none</code>, application code skips the reaction even if other selectors returned values. If no suitable recording exists, the face can play in silence. A batched answer does not override an attention signal or approve a coding agent’s permission request.</p>
+<p>When a later decision truly requires the newly chosen mood, apply that mood first and ask again with the updated context. Sharing state can reduce repeated requests, but it does not establish a guarantee that independently selected answers form a consistent combination. Validate the combination your application intends to execute.</p>
+<h2>What this says about response speed</h2>
+<p>Batching lets several choices use one request instead of a chain of calls over repeated context. The actual benefit depends on the roster, context, provider and application. Our <a href="/learn/jev-decision-latency/">historical 105-pass timing sample</a> reports a 227 ms median decision pass; it is not a controlled comparison of batched versus separate questions or an end-to-end hardware benchmark.</p>
+<p>Start with <a href="/learn/mellowharness-quickstart/">the scripted MellowHarness quickstart</a> to inspect the loop without a model key. Then connect Jev and measure both decision suitability and the complete interaction path on your own events. For the surrounding architecture, read <a href="/learn/agent-harness-design/">agent harness design</a>.</p>

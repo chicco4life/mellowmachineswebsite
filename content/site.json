@@ -3,7 +3,7 @@
   "origin": "https://mellowmachines.com",
   "description": "Open-source agent harness design with System One Models like Jev. Explore MellowHarness, expressive coding companions, measured decision timings and ESP32 build guides.",
   "shortDescription": "Mellow Machines Lab is a small open-source team applying frontier harness principles to build warm, welcoming, playful companions.",
-  "updated": "2026-10-10",
+  "updated": "2026-10-11",
   "authors": [
     {
       "name": "Federico Li",
@@ -27,5 +27,6 @@
     "AgentHooks": "e51508f09bd12ecd9938a3bce70ef25d8871a75f"
   },
   "publicationsChecked": "2026-10-09",
-  "productUpdated": "2026-10-09"
+  "productUpdated": "2026-10-09",
+  "indexNowKey": "ce6e9d918d609ab558e5f86e06dd2b31"
 }
